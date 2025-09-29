@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Tickets</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f9f9f9;
+    padding: 10px;
+  }
+  h1 { text-align: center; }
+  .pedido-listo { color: green; }
+  .pedido-agotado { text-decoration: line-through; color: #d9534f; } /* rojo fuerte */
+  button {
+    margin-left: 10px;
+    padding: 6px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .btn-listo { background: #28a745; color: white; }
+  .btn-agotado { background: #d9534f; color: white; } /* rojo */
+</style>
+</head>
+<body>
+  <h1>Órdenes registradas</h1>
+  <div id="lista"></div>
+
+  <script>
+    function mostrarOrdenes() {
+      const lista = document.getElementById("lista");
+      lista.innerHTML = "";
+      const ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
+
+      if (ordenes.length === 0) {
+        lista.innerHTML = "<p>No hay órdenes aún.</p>";
+      } else {
+        ordenes.forEach((orden, i) => {
+          const p = document.createElement("p");
+          let html = `${i + 1}. ${orden.nombre} pidió: ${orden.opcion} (Fecha: ${orden.fecha})`;
+
+          if (!orden.listo && !orden.agotado) {
+            html += ` <button class="btn-listo" onclick="marcarListo(${orden.id})">Listo</button>`;
+          } else if (orden.listo && !orden.agotado) {
+            html += ` ✅ Listo <button class="btn-agotado" onclick="marcarAgotado(${orden.id})">Agotado</button>`;
+          } else if (orden.agotado) {
+            html += ` 🔴 Agotado`;
+          }
+
+          p.innerHTML = html;
+
+          if (orden.agotado) p.classList.add("pedido-agotado");
+          else if (orden.listo) p.classList.add("pedido-listo");
+
+          lista.appendChild(p);
+        });
+      }
+    }
+
+    function marcarListo(id) {
+      const ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
+      const o = ordenes.find(o => o.id === id);
+      if (o) {
+        o.listo = true;
+        localStorage.setItem("ordenes", JSON.stringify(ordenes));
+        mostrarOrdenes();
+      }
+    }
+
+    function marcarAgotado(id) {
+      const ordenes = JSON.parse(localStorage.getItem("ordenes")) || [];
+      const o = ordenes.find(o => o.id === id);
+      if (o) {
+        o.agotado = true; // cambiar a agotado
+        localStorage.setItem("ordenes", JSON.stringify(ordenes));
+        mostrarOrdenes();
+      }
+    }
+
+    mostrarOrdenes();
+    setInterval(mostrarOrdenes, 5000);
+    window.addEventListener("storage", mostrarOrdenes);
+  </script>
+</body>
+</html>
