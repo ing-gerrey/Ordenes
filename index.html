@@ -17,12 +17,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
-    margin: 20px 0;
+    gap: 12px;
+    margin: 15px 0;
   }
+  /* ⬇️  imágenes más pequeñas */
   #opciones img {
-    width: 80%;
-    max-width: 320px;
+    width: 60%;              /* antes 80% */
+    max-width: 240px;        /* antes 300-320px */
     border-radius: 12px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     cursor: pointer;
@@ -30,10 +31,11 @@
   }
   #opciones img:active { transform: scale(0.97); }
   img.desactivado { opacity: 0.4; pointer-events: none; }
+
   #acciones {
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 12px;
     margin-top: 15px;
   }
   button {
@@ -45,16 +47,18 @@
     color: white;
   }
   button:hover { background: #0056b3; }
+
   input[type="text"] {
-    width: 90%;
-    max-width: 320px;
-    margin: 10px auto;
+    width: 85%;
+    max-width: 300px;
+    margin: 8px auto;
     display: block;
-    padding: 12px;
+    padding: 10px;
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 8px;
   }
+
   #historial p {
     background: #fff;
     margin: 6px auto;
@@ -62,7 +66,7 @@
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     width: 90%;
-    max-width: 360px;
+    max-width: 340px;
   }
 </style>
 </head>
@@ -89,3 +93,4 @@
   <div id="historial"></div>
 </body>
 </html>
+
