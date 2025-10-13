@@ -3,82 +3,159 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pedidos</title>
+<title>👽 Sábado Espeluznante 🌭 — Yuli</title>
 <script src="script.js" defer></script>
+
+<!-- Fuente pixelada -->
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
 <style>
+  /* --- Fondo base (pantallas grandes) --- */
   body {
-    font-family: Arial, sans-serif;
+    font-family: 'VT323', monospace;
+    color: #e0e0e0;
     margin: 0;
     padding: 10px;
-    background: #f9f9f9;
+    min-height: 100vh;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.9)),
+                url('fondo2.jpg') center bottom no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
   }
-  h1,h2,h3 { text-align: center; }
-  #opciones {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    margin: 15px 0;
-  }
-  /* ⬇️  imágenes más pequeñas */
-  #opciones img {
-    width: 35%;              /* antes 80% */
-    max-width: 150px;        /* antes 300-320px */
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    cursor: pointer;
-    transition: transform .2s;
-  }
-  #opciones img:active { transform: scale(0.97); }
-  img.desactivado { opacity: 0.4; pointer-events: none; }
 
-  #acciones {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
+  /* --- Fondo para móviles --- */
+  @media (max-width: 768px) {
+    body {
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.9)),
+                  url('fondo1.jpg') center bottom no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+    }
+  }
+
+  h1, h2, h3 {
+    text-align: center;
+    text-shadow: 0 0 10px #5dd06e, 0 0 20px #4bb35b;
+  }
+
+  h1 {
+    color: #5dd06e;
+    font-size: 40px;
     margin-top: 15px;
+    animation: parpadeo 1.5s infinite alternate;
   }
-  button {
-    padding: 12px 18px;
-    font-size: 16px;
-    border: none;
-    border-radius: 8px;
-    background: #007bff;
-    color: white;
+
+  @keyframes parpadeo {
+    from { opacity: 1; }
+    to { opacity: 0.7; }
   }
-  button:hover { background: #0056b3; }
 
   input[type="text"] {
     width: 85%;
     max-width: 300px;
-    margin: 8px auto;
+    margin: 10px auto;
     display: block;
     padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+    font-size: 18px;
+    border: 1px solid #5dd06e;
+    border-radius: 4px;
+    background-color: rgba(30,46,56,0.7);
+    color: #e0e0e0;
+    text-align: center;
+  }
+
+  #opciones {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+  }
+
+  #opciones img {
+    width: 60%;
+    max-width: 240px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(91,219,102,0.3);
+    cursor: pointer;
+    transition: transform .2s, box-shadow .3s;
+  }
+
+  #opciones img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(91,219,102,0.6);
+  }
+
+  img.desactivado {
+    opacity: 0.4;
+    pointer-events: none;
+    box-shadow: none;
+  }
+
+  #acciones {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  button {
+    background: #4bb35b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 18px;
+    box-shadow: 0 0 10px #4bb35b;
+    transition: all .3s;
+  }
+
+  button:hover {
+    background: #5dd06e;
+    box-shadow: 0 0 20px #5dd06e;
+  }
+
+  #pedido {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 20px;
+    color: #91c98d;
+  }
+
+  #historial {
+    margin-top: 25px;
   }
 
   #historial p {
-    background: #fff;
+    background: rgba(15,26,34,0.7);
+    border: 1px solid rgba(91,219,102,0.3);
     margin: 6px auto;
     padding: 8px;
     border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     width: 90%;
     max-width: 340px;
+    color: #e0e0e0;
+    box-shadow: 0 0 6px rgba(91,219,102,0.2);
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 14px;
+    color: #8ba599;
   }
 </style>
 </head>
-<body>
-  <h1>Bienvenido</h1>
-  <input id="nombre" type="text" placeholder="Ingresa tu nombre">
-  <h3>Elige una opción:</h3>
 
+<body>
+  <h1>👽 Sábado Espeluznante 🌭</h1>
+  <input id="nombre" type="text" placeholder="Ingresa tu nombre">
+
+  <h3>Elige tu hotdog:</h3>
   <div id="opciones">
-    <img src="opcion1.jpg" alt="Sencillo" onclick="guardar('Sencillo')">
-    <img src="opcion2.jpg" alt="Cebolla caramelizada" onclick="guardar('Cebolla caramelizada')">
-    <img src="opcion3.jpg" alt="Chili" onclick="guardar('Chili')">
+    <img src="opcion1.jpg" alt="Clásico" onclick="preguntarPapas('Clásico')">
+    <img src="opcion2.jpg" alt="Cebolla caramelizada" onclick="preguntarPapas('Cebolla caramelizada')">
+    <img src="opcion3.jpg" alt="Chili" onclick="preguntarPapas('Chili')">
   </div>
 
   <h2>Tu pedido actual:</h2>
@@ -91,8 +168,7 @@
 
   <h2>Historial de tus órdenes:</h2>
   <div id="historial"></div>
+
+  <footer>©Yuli 🌙</footer>
 </body>
 </html>
-
-
-
