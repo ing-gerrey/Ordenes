@@ -1,156 +1,129 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Orden — Sábado Espeluznante 32</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>👽 Sábado Espeluznante 32 🌭 — Proyecto de Yuli</title>
+
+<!-- IMPORTANTE: module para poder usar Firebase -->
+<script type="module" src="script.js"></script>
+
+<!-- Fuente pixelada -->
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 
 <style>
-  body{
-    margin:0;
-    font-family: Arial, sans-serif;
-    background:#0a1520;
-    color:#fff;
-    text-align:center;
+  /* --- Fondo base (pantallas grandes) --- */
+  body {
+    font-family: 'VT323', monospace;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 10px;
+    min-height: 100vh;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.9)),
+                url('fondo2.jpg') center bottom no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
   }
 
-  header{
-    padding:10px;
-    font-size:1.1rem;
-    font-weight:bold;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:5px;
+  /* --- Fondo para móviles --- */
+  @media (max-width: 768px) {
+    body {
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.9)),
+                  url('fondo1.jpg') center bottom no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+    }
   }
 
-  .alien{ font-size:1.3rem; }
-
-  .card{
-    background:#111a27;
-    margin:10px;
-    border-radius:12px;
-    padding:12px;
-    border:1px solid #223345;
+  h1, h2, h3 {
+    text-align: center;
+    text-shadow: 0 0 10px #5dd06e, 0 0 20px #4bb35b;
   }
 
-  input[type="text"]{
-    width:100%;
-    padding:10px;
-    border-radius:8px;
-    border:none;
-    background:#0c1a29;
-    color:white;
-    font-size:1rem;
+  h1 {
+    color: #5dd06e;
+    font-size: 40px;
+    margin-top: 15px;
+    animation: parpadeo 1.5s infinite alternate;
   }
 
-  .grid{
-    display:grid;
-    grid-template-columns:repeat(2, 1fr);
-    gap:10px;
+  @keyframes parpadeo { from {opacity:1;} to {opacity:0.7;} }
+
+  input[type="text"] {
+    width: 85%;
+    max-width: 300px;
+    margin: 10px auto;
+    display: block;
+    padding: 10px;
+    font-size: 18px;
+    border: 1px solid #5dd06e;
+    border-radius: 4px;
+    background-color: rgba(30,46,56,0.7);
+    color: #e0e0e0;
+    text-align: center;
   }
 
-  .opt{
-    background:#0c1a29;
-    border-radius:10px;
-    overflow:hidden;
-    border:1px solid #2a3b53;
+  #opciones {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
   }
 
-  .opt img{
-    width:100%;
-    height:90px;
-    object-fit:cover;
+  #opciones img {
+    width: 60%;
+    max-width: 240px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(91,219,102,0.3);
+    cursor: pointer;
+    transition: transform .2s, box-shadow .3s;
+  }
+  #opciones img:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(91,219,102,0.6); }
+  img.desactivado { opacity:.4; pointer-events:none; box-shadow:none; }
+
+  #acciones { display:flex; justify-content:center; gap:15px; margin-top:20px; }
+  button {
+    background:#4bb35b; color:#fff; border:none; border-radius:6px; padding:10px 20px;
+    font-size:18px; box-shadow:0 0 10px #4bb35b; transition:all .3s;
+  }
+  button:hover { background:#5dd06e; box-shadow:0 0 20px #5dd06e; }
+
+  #pedido { text-align:center; margin-top:10px; font-size:20px; color:#91c98d; }
+
+  #historial { margin-top:25px; }
+  #historial p{
+    background:rgba(15,26,34,0.7); border:1px solid rgba(91,219,102,0.3);
+    margin:6px auto; padding:8px; border-radius:6px; width:90%; max-width:340px;
+    color:#e0e0e0; box-shadow:0 0 6px rgba(91,219,102,0.2);
   }
 
-  .opt button{
-    width:100%;
-    padding:10px;
-    background:#12253a;
-    color:#fff;
-    border:none;
-    font-size:0.9rem;
-    font-weight:bold;
-  }
-
-  .opt button:active{
-    background:#194a70;
-  }
-
-  .btn{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:8px;
-    font-size:1rem;
-    font-weight:bold;
-    margin-top:8px;
-  }
-
-  .ok{ background:#1d6b3f; }
-  .warn{ background:#6b1d23; }
-  .status{ font-size:0.9rem; margin-top:6px; }
-  ul{ list-style:none; padding:0; margin-top:10px; text-align:left; }
-  li{
-    padding:6px;
-    border-bottom:1px dashed #314155;
-    font-size:0.85rem;
-  }
-
-  footer{
-    padding:10px;
-    font-size:0.75rem;
-    opacity:0.7;
-  }
+  footer { text-align:center; margin-top:25px; font-size:14px; color:#8ba599; }
 </style>
 </head>
+
 <body>
+  <h1>👽 Sábado Espeluznante 32 🌭</h1>
+  <input id="nombre" type="text" placeholder="Ingresa tu nombre">
 
-<header>
-  <span class="alien">👽</span> Sábado Espeluznante 32
-</header>
-
-<div class="card">
-  <input id="nombre" type="text" placeholder="Escribe tu nombre...">
-  <p id="lockMsg" style="font-size:0.8rem; opacity:0.7;" hidden>🔒 El nombre queda fijo después de tu primera orden.</p>
-</div>
-
-<div class="card">
-  <strong>Elige tu hotdog</strong>
-  <div class="grid" id="opciones">
-    <div class="opt">
-      <img src="./opcion1.jpg">
-      <button data-opcion="Sencillo">Sencillo</button>
-    </div>
-    <div class="opt">
-      <img src="./opcion2.jpg">
-      <button data-opcion="Cebolla caramelizada">Cebolla caramelizada</button>
-    </div>
-    <div class="opt">
-      <img src="./opcion3.jpg">
-      <button data-opcion="Chili">Chili</button>
-    </div>
+  <h3>Elige tu hotdog:</h3>
+  <div id="opciones">
+    <img src="opcion1.jpg" alt="Clásico" onclick="preguntarPapas('Clásico')">
+    <img src="opcion2.jpg" alt="Cebolla caramelizada" onclick="preguntarPapas('Cebolla caramelizada')">
+    <img src="opcion3.jpg" alt="Chili" onclick="preguntarPapas('Chili')">
   </div>
-  <div id="selStatus" class="status"></div>
-</div>
 
-<div class="card">
-  <button id="btnNueva" class="btn ok" disabled>Nueva orden</button>
-  <button id="btnCancelar" class="btn warn" disabled>Cancelar</button>
-  <p id="info" class="status"></p>
-</div>
+  <h2>Tu pedido actual:</h2>
+  <p id="pedido"></p>
 
-<div class="card">
-  <strong>Mis órdenes</strong>
-  <ul id="historial"></ul>
-</div>
+  <div id="acciones" style="display:none;">
+    <button onclick="nuevaOrden()">Nueva orden</button>
+    <button onclick="cancelar()">Cancelar</button>
+  </div>
 
-<footer>Hecho con Firebase + Amor + Hotdogs</footer>
+  <h2>Historial de tus órdenes:</h2>
+  <div id="historial"></div>
 
-<script type="module">
-  /* AQUÍ VA EL MISMO JAVASCRIPT DE FIREBASE QUE YA FUNCIONA
-     No se cambia nada de lógica, todo sigue igual. */
-</script>
-
+  <footer>© Proyecto de Yuli — Inspirado en una noche pixelada 🌙</footer>
 </body>
 </html>
