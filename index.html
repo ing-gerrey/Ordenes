@@ -4,12 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>👽 Sábado Espeluznante 32 🌭 — Ordena tu hotdog</title>
-
 <style>
-  body { font-family: Arial, sans-serif; margin: 0; padding: 16px; color: #eaeaea;
-         background:#0e1a22; }
+  body { font-family: Arial, sans-serif; margin: 0; padding: 16px; color: #eaeaea; background:#0e1a22; }
   h1,h2,h3 { text-align:center; }
   h1 { color:#5dd06e; text-shadow:0 0 8px #4bb35b; margin-bottom:6px; }
+  #status { text-align:center; margin:8px 0; font-size:14px; color:#9ad6a0; }
   input[type="text"]{ width:95%; max-width:320px; margin:10px auto; display:block;
          padding:10px; font-size:18px; border:1px solid #5dd06e; border-radius:6px;
          background:rgba(30,46,56,.7); color:#eaeaea; text-align:center; }
@@ -26,140 +25,26 @@
   #historial p{ background:#0f1a22; border:1px solid rgba(93,208,110,.25);
                 padding:8px; border-radius:6px; margin:6px 0; }
   footer{ margin-top:18px; text-align:center; color:#8aa19a; font-size:13px; }
+  .err { color:#ff8a8a; }
 </style>
-
-<!-- Firebase SDK modular (CDN) + lógica de la página -->
-<script type="module">
-  /* -------- Firebase (modular) -------- */
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-  import {
-    getDatabase, ref, push, set, onValue,
-    query, orderByChild, equalTo, remove
-  } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
-
-  // ⚠️ Config corregida: se agrega databaseURL y storageBucket *.appspot.com
-  const firebaseConfig = {
-    apiKey: "AIzaSyDkzW3BnlnhDXf2naDEsjx-zouCQw1AJ9c",
-    authDomain: "ordenes-b0c4c.firebaseapp.com",
-    databaseURL: "https://ordenes-b0c4c-default-rtdb.firebaseio.com",
-    projectId: "ordenes-b0c4c",
-    storageBucket: "ordenes-b0c4c.appspot.com",
-    messagingSenderId: "168920201545",
-    appId: "1:168920201545:web:7a8e53c3e34e28e7508298",
-    measurementId: "G-RSG46R8W8C"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db  = getDatabase(app);
-
-  /* -------- Estado y utilidades -------- */
-  let ultimaOrdenKey = sessionStorage.getItem("ultimaOrdenKey") || null;
-  let nombreUsuario  = localStorage.getItem("nombreUsuario")  || null;
-
-  const $ = (sel)=>document.querySelector(sel);
-
-  function activarOpciones(si){
-    document.querySelectorAll(".card").forEach(c=>c.classList.toggle("desactivado", !si));
-    $("#acciones").style.display = si ? "none" : "flex";
-  }
-  function setPedido(txt=""){ const el=$("#pedido"); if(el) el.textContent=txt; }
-
-  /* -------- Flujo de pedido -------- */
-  window.pedir = (opcion) => {
-    const nombreInput = $("#nombre");
-    if (!nombreUsuario && (!nombreInput || !nombreInput.value.trim())){
-      alert("Por favor, ingresa tu nombre antes de hacer un pedido.");
-      return;
-    }
-    if (!nombreUsuario){
-      nombreUsuario = nombreInput.value.trim();
-      localStorage.setItem("nombreUsuario", nombreUsuario);
-      nombreInput.disabled = true; // bloquear cambio de nombre tras 1ra orden
-    }
-
-    const deseaPapas = confirm("¿Deseas papas con tu orden?\nPulsa Aceptar para Sí o Cancelar para No.");
-    const detalle    = deseaPapas ? `${opcion} con papas` : `${opcion} sin papas`;
-    guardar(opcion, deseaPapas, detalle);
-  };
-
-  async function guardar(opcion, papas, detalle){
-    const col = ref(db, "ordenes");
-    const nuevaRef = push(col);
-    await set(nuevaRef, {
-      id: Date.now(),
-      nombre: nombreUsuario,
-      opcion,
-      papas,
-      detalle,
-      fecha: new Date().toLocaleString(),
-      listo: false,
-      agotado: false
-    });
-    ultimaOrdenKey = nuevaRef.key;
-    sessionStorage.setItem("ultimaOrdenKey", ultimaOrdenKey);
-    setPedido(`Gracias, ${nombreUsuario}. Tu pedido es: ${detalle}`);
-    activarOpciones(false);
-  }
-
-  window.nuevaOrden = () => {
-    activarOpciones(true);
-    setPedido("");
-    ultimaOrdenKey=null;
-    sessionStorage.removeItem("ultimaOrdenKey");
-  };
-
-  window.cancelar = async () => {
-    if(!ultimaOrdenKey){ setPedido("No hay una orden activa para cancelar."); return; }
-    await remove(ref(db, "ordenes/"+ultimaOrdenKey));
-    window.nuevaOrden();
-  };
-
-  /* -------- Historial en vivo por usuario -------- */
-  function suscribirHistorial(){
-    if(!nombreUsuario) return;
-    const q = query(ref(db,"ordenes"), orderByChild("nombre"), equalTo(nombreUsuario));
-    onValue(q, snap=>{
-      const cont = document.getElementById("historial");
-      if(!cont) return;
-      cont.innerHTML="";
-      const data = snap.val() || {};
-      const items = Object.entries(data).sort((a,b)=>a[1].id - b[1].id);
-
-      if(items.length===0){ cont.innerHTML="<p>No hay órdenes todavía.</p>"; return; }
-
-      items.forEach(([key,o],i)=>{
-        let estado = o.agotado ? " 🔴 Agotado - elige otra opción" : (o.listo ? " ✅ Listo" : "");
-        const p = document.createElement("p");
-        p.textContent = `${i+1}. ${o.opcion} (${o.papas?"🥔 Con papas":"❌ Sin papas"}) - ${o.fecha}${estado}`;
-        cont.appendChild(p);
-      });
-    });
-  }
-
-  /* -------- Inicio -------- */
-  window.addEventListener("DOMContentLoaded", ()=>{
-    if(nombreUsuario && $("#nombre")){ $("#nombre").value = nombreUsuario; $("#nombre").disabled = true; }
-    activarOpciones(!ultimaOrdenKey);
-    suscribirHistorial();
-  });
-</script>
 </head>
-
 <body>
   <h1>👽 Sábado Espeluznante 32 🌭</h1>
+  <div id="status">Cargando…</div>
+
   <input id="nombre" type="text" placeholder="Ingresa tu nombre" />
 
   <h3>Elige tu hotdog</h3>
   <div id="opciones">
-    <div class="card" onclick="pedir('Sencillo')">
+    <div class="card" onclick="window.pedir && window.pedir('Sencillo')">
       <img src="opcion1.jpg" alt="Sencillo" />
       <span>Sencillo</span>
     </div>
-    <div class="card" onclick="pedir('Cebolla caramelizada')">
+    <div class="card" onclick="window.pedir && window.pedir('Cebolla caramelizada')">
       <img src="opcion2.jpg" alt="Cebolla caramelizada" />
       <span>Cebolla caramelizada</span>
     </div>
-    <div class="card" onclick="pedir('Chili')">
+    <div class="card" onclick="window.pedir && window.pedir('Chili')">
       <img src="opcion3.jpg" alt="Chili" />
       <span>Chili</span>
     </div>
@@ -169,13 +54,129 @@
   <p id="pedido"></p>
 
   <div id="acciones">
-    <button onclick="nuevaOrden()">Nueva orden</button>
-    <button onclick="cancelar()">Cancelar</button>
+    <button onclick="window.nuevaOrden && window.nuevaOrden()">Nueva orden</button>
+    <button onclick="window.cancelar && window.cancelar()">Cancelar</button>
   </div>
 
   <h2>Historial de tus órdenes</h2>
   <div id="historial"></div>
 
-  <footer>© Proyecto de Yuli — Inspirado en una noche pixelada 🌙</footer>
+  <footer>©Yuli 🌙</footer>
+
+  <!-- Mueve el script modular al FINAL del body -->
+  <script>
+    // Mostrar errores JS en pantalla (útil en móvil)
+    window.onerror = function(msg, src, line, col, err){
+      const s = document.getElementById('status');
+      s.innerHTML = '⚠️ <b>Error:</b> ' + msg;
+      s.classList.add('err');
+    };
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+    import {
+      getDatabase, ref, push, set, onValue,
+      query, orderByChild, equalTo, remove
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+
+    const statusEl = document.getElementById('status');
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDkzW3BnlnhDXf2naDEsjx-zouCQw1AJ9c",
+      authDomain: "ordenes-b0c4c.firebaseapp.com",
+      databaseURL: "https://ordenes-b0c4c-default-rtdb.firebaseio.com",
+      projectId: "ordenes-b0c4c",
+      storageBucket: "ordenes-b0c4c.appspot.com",
+      messagingSenderId: "168920201545",
+      appId: "1:168920201545:web:7a8e53c3e34e28e7508298",
+      measurementId: "G-RSG46R8W8C"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+    statusEl.textContent = '✅ Firebase listo';
+
+    let ultimaOrdenKey = sessionStorage.getItem("ultimaOrdenKey") || null;
+    let nombreUsuario  = localStorage.getItem("nombreUsuario")  || null;
+
+    const $ = (sel)=>document.querySelector(sel);
+
+    function activarOpciones(si){
+      document.querySelectorAll(".card").forEach(c=>c.classList.toggle("desactivado", !si));
+      $("#acciones").style.display = si ? "none" : "flex";
+    }
+    function setPedido(txt=""){ const el=$("#pedido"); if(el) el.textContent=txt; }
+
+    window.pedir = (opcion) => {
+      const nombreInput = $("#nombre");
+      if (!nombreUsuario && (!nombreInput || !nombreInput.value.trim())){
+        alert("Por favor, ingresa tu nombre antes de hacer un pedido.");
+        return;
+      }
+      if (!nombreUsuario){
+        nombreUsuario = nombreInput.value.trim();
+        localStorage.setItem("nombreUsuario", nombreUsuario);
+        nombreInput.disabled = true;
+      }
+      const deseaPapas = confirm("¿Deseas papas con tu orden?\nPulsa Aceptar para Sí o Cancelar para No.");
+      const detalle    = deseaPapas ? `${opcion} con papas` : `${opcion} sin papas`;
+      guardar(opcion, deseaPapas, detalle);
+    };
+
+    async function guardar(opcion, papas, detalle){
+      const col = ref(db, "ordenes");
+      const nuevaRef = push(col);
+      await set(nuevaRef, {
+        id: Date.now(),
+        nombre: nombreUsuario,
+        opcion, papas, detalle,
+        fecha: new Date().toLocaleString(),
+        listo: false, agotado: false
+      });
+      ultimaOrdenKey = nuevaRef.key;
+      sessionStorage.setItem("ultimaOrdenKey", ultimaOrdenKey);
+      setPedido(`Gracias, ${nombreUsuario}. Tu pedido es: ${detalle}`);
+      activarOpciones(false);
+    }
+
+    window.nuevaOrden = () => {
+      activarOpciones(true);
+      setPedido("");
+      ultimaOrdenKey=null;
+      sessionStorage.removeItem("ultimaOrdenKey");
+    };
+
+    window.cancelar = async () => {
+      if(!ultimaOrdenKey){ setPedido("No hay una orden activa para cancelar."); return; }
+      await remove(ref(db, "ordenes/"+ultimaOrdenKey));
+      window.nuevaOrden();
+    };
+
+    function suscribirHistorial(){
+      if(!nombreUsuario) return;
+      const q = query(ref(db,"ordenes"), orderByChild("nombre"), equalTo(nombreUsuario));
+      onValue(q, snap=>{
+        const cont = document.getElementById("historial");
+        if(!cont) return;
+        cont.innerHTML="";
+        const data = snap.val() || {};
+        const items = Object.entries(data).sort((a,b)=>a[1].id - b[1].id);
+        if(items.length===0){ cont.innerHTML="<p>No hay órdenes todavía.</p>"; return; }
+        items.forEach(([key,o],i)=>{
+          let estado = o.agotado ? " 🔴 Agotado - elige otra opción" : (o.listo ? " ✅ Listo" : "");
+          const p = document.createElement("p");
+          p.textContent = `${i+1}. ${o.opcion} (${o.papas?"🥔 Con papas":"❌ Sin papas"}) - ${o.fecha}${estado}`;
+          cont.appendChild(p);
+        });
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", ()=>{
+      if(nombreUsuario && $("#nombre")){ $("#nombre").value = nombreUsuario; $("#nombre").disabled = true; }
+      activarOpciones(!ultimaOrdenKey);
+      suscribirHistorial();
+    });
+  </script>
 </body>
 </html>
