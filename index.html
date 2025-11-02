@@ -2,114 +2,143 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>👽 Sábado Espeluznante 32 🌭 — Ordena tu hotdog</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sábado espeluznante 32 — Ordenar</title>
 <style>
   :root{
-    --verde:#5dd06e;
-    --verde-2:#4bb35b;
-    --fondo:#0e1a22;
-    --panel:#16242c;
-    --borde:rgba(93,208,110,.35);
-    --texto:#eaeaea;
+    --bg-dark:#0e1723;
+    --card:#111a27cc;
+    --accent:#7fffd4;
+    --ok:#2ecc71;
+    --warn:#e74c3c;
   }
-  html,body{margin:0;padding:0;background:var(--fondo);color:var(--texto);font-family:system-ui,Arial,sans-serif;}
-  main{max-width:720px;margin:0 auto;padding:16px;}
-  h1,h2,h3{text-align:center;margin:8px 0}
-  h1{color:var(--verde);text-shadow:0 0 8px var(--verde-2)}
-  #status{text-align:center;margin:8px 0;font-size:14px;color:#9ad6a0}
-  input[type="text"]{
-    width:92%;max-width:360px;margin:10px auto;display:block;padding:12px 14px;
-    font-size:18px;border:1px solid var(--verde);border-radius:10px;
-    background:rgba(30,46,56,.7);color:var(--texto);text-align:center;
+  html,body{height:100%;}
+  body{
+    margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    color:#e7f1ff; background:#0a1520;
+    background-image:url('./Fondo1.jpg');
+    background-size:cover; background-position:center; background-attachment:fixed;
   }
-  #opciones{
-    display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center;margin:12px 0;
+  @media (min-width:768px){
+    body{ background-image:url('./Fondo2.jpg'); }
   }
+  .wrap{min-height:100%; display:flex; flex-direction:column;}
+  header{
+    text-align:center; padding:18px 12px;
+    background:linear-gradient(180deg,#0a1520 0%,#0a152000 100%);
+  }
+  header h1{
+    margin:0; font-size:1.35rem; letter-spacing:.3px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; gap:.5rem;
+  }
+  .alien{font-size:1.3rem; filter:drop-shadow(0 0 4px #00ff95);}
+  .sub{opacity:.85; font-size:.85rem; margin-top:6px}
+  main{flex:1; padding:10px; max-width:720px; margin:0 auto;}
   .card{
-    width:128px;background:var(--panel);border:1px solid var(--borde);border-radius:14px;
-    padding:10px;text-align:center;box-shadow:0 0 10px rgba(93,208,110,.2);cursor:pointer;transition:.15s;
+    background:var(--card); backdrop-filter:blur(6px);
+    border:1px solid #203146; border-radius:14px; padding:14px; margin-bottom:12px;
   }
-  .card:hover{transform:translateY(-2px)}
-  .card img{width:100%;border-radius:10px;display:block}
-  .card span{display:block;margin-top:6px;font-size:14px;color:#cfead1}
-  .desactivado{opacity:.35;pointer-events:none;filter:grayscale(40%)}
-  #pedido{margin:8px 0;text-align:center;color:#a9e3ad;min-height:1.2em}
-  #acciones{display:none;justify-content:center;gap:12px;margin-top:10px}
-  button{
-    background:var(--verde-2);color:#fff;border:none;border-radius:10px;
-    padding:10px 16px;font-size:16px
+  .row{display:flex; gap:10px; align-items:center;}
+  .row > *{flex:1;}
+  input[type="text"]{
+    width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a3b53;
+    background:#0c1a29; color:#fff; font-size:16px;
   }
-  button:hover{background:var(--verde)}
-  #historial p{
-    background:#0f1a22;border:1px solid rgba(93,208,110,.25);padding:8px;border-radius:8px;margin:6px 0
+  .lock{font-size:.9rem; opacity:.8; margin-top:6px}
+  .grid{
+    display:grid; gap:10px; grid-template-columns:repeat(3,1fr);
   }
-  footer{margin:18px 0;text-align:center;color:#8aa19a;font-size:13px}
-  .err{color:#ff8a8a}
+  .opt{
+    border-radius:12px; overflow:hidden; border:1px solid #203146; background:#0c1a29;
+  }
+  .opt img{display:block; width:100%; height:90px; object-fit:cover;}
+  .opt button{
+    width:100%; border:0; background:#12253a; color:#e7f1ff; padding:8px; cursor:pointer;
+    font-weight:600;
+  }
+  .opt button:disabled{opacity:.35; cursor:not-allowed;}
+  .actions{display:flex; gap:10px;}
+  .btn{
+    flex:1; padding:10px 12px; border-radius:10px; border:1px solid #2a3b53;
+    background:#12253a; color:#fff; font-weight:700; cursor:pointer;
+  }
+  .btn.ok{background:#133825; border-color:#1d6b3f;}
+  .btn.warn{background:#3a1416; border-color:#6b1d23;}
+  .mute{opacity:.65}
+  .status{margin-top:6px; font-size:.9rem}
+  .tag{display:inline-block; padding:2px 8px; border-radius:999px; font-size:.78rem; border:1px solid #2a3b53; background:#0c1a29}
+  ul{list-style:none; padding:0; margin:8px 0 0}
+  li{padding:6px 0; border-bottom:1px dashed #203146;}
+  footer{padding:16px; text-align:center; font-size:.8rem; opacity:.85}
 </style>
 </head>
 <body>
-<main>
-  <h1>👽 Sábado Espeluznante 32 🌭</h1>
-  <div id="status">Cargando…</div>
+<div class="wrap">
+  <header>
+    <h1><span class="alien">👽</span> Sábado espeluznante 32 — Hotdogs</h1>
+    <div class="sub">Para Yuli • © Evento Especial — Inspirado en una noche pixelada</div>
+  </header>
 
-  <input id="nombre" type="text" placeholder="Ingresa tu nombre" autocomplete="off"/>
+  <main>
+    <section class="card">
+      <label for="nombre">Tu nombre</label>
+      <div class="row" style="margin-top:6px">
+        <input id="nombre" type="text" placeholder="Escribe tu nombre…" />
+      </div>
+      <div id="lockMsg" class="lock" hidden>🔒 El nombre queda fijo después de tu primera orden.</div>
+    </section>
 
-  <h3>Elige tu hotdog</h3>
-  <div id="opciones">
-    <div class="card" onclick="window.pedir && window.pedir('Sencillo')">
-      <img src="opcion1.jpg" alt="Sencillo"/>
-      <span>Sencillo</span>
-    </div>
-    <div class="card" onclick="window.pedir && window.pedir('Cebolla caramelizada')">
-      <img src="opcion2.jpg" alt="Cebolla caramelizada"/>
-      <span>Cebolla caramelizada</span>
-    </div>
-    <div class="card" onclick="window.pedir && window.pedir('Chili')">
-      <img src="opcion3.jpg" alt="Chili"/>
-      <span>Chili</span>
-    </div>
-  </div>
+    <section class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px">
+        <strong>Elige tu hotdog</strong>
+        <span class="tag">Sencillo • Cebolla caramelizada • Chili</span>
+      </div>
+      <div id="opciones" class="grid">
+        <div class="opt">
+          <img src="./opcion1.jpg" alt="Sencillo">
+          <button data-opcion="Sencillo">Sencillo</button>
+        </div>
+        <div class="opt">
+          <img src="./opcion2.jpg" alt="Cebolla caramelizada">
+          <button data-opcion="Cebolla caramelizada">Cebolla caramelizada</button>
+        </div>
+        <div class="opt">
+          <img src="./opcion3.jpg" alt="Chili">
+          <button data-opcion="Chili">Chili</button>
+        </div>
+      </div>
+      <div id="selStatus" class="status"></div>
+    </section>
 
-  <h2>Tu pedido actual</h2>
-  <p id="pedido"></p>
+    <section class="card">
+      <div class="actions">
+        <button id="btnNueva" class="btn ok" disabled>Nueva orden</button>
+        <button id="btnCancelar" class="btn warn" disabled>Cancelar orden</button>
+      </div>
+      <div id="info" class="status"></div>
+    </section>
 
-  <div id="acciones">
-    <button onclick="window.nuevaOrden && window.nuevaOrden()">Nueva orden</button>
-    <button onclick="window.cancelar && window.cancelar()">Cancelar</button>
-  </div>
+    <section class="card">
+      <strong>Historial de mis órdenes</strong>
+      <ul id="historial"></ul>
+    </section>
+  </main>
 
-  <h2>Historial de tus órdenes</h2>
-  <div id="historial"></div>
+  <footer>Hecho con Firebase • GitHub Pages</footer>
+</div>
 
-  <footer>©Yuli 🌙</footer>
-</main>
-
-<!-- Mostrar errores JS en pantalla (útil en móvil) -->
-<script>
-  window.onerror = function(msg, src, line, col, err){
-    const s = document.getElementById('status');
-    s.innerHTML = '⚠️ <b>Error:</b> ' + msg;
-    s.classList.add('err');
-  };
-</script>
-
-<!-- Firebase + lógica de la página (modular, sin script.js) -->
+<!-- Firebase + Firestore -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
   import {
-    getDatabase, ref, push, set, onValue,
-    query, orderByChild, equalTo, remove
-  } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+    getFirestore, collection, addDoc, serverTimestamp,
+    onSnapshot, query, where, orderBy, doc, getDocs, updateDoc, deleteDoc, limit
+  } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-  const statusEl = document.getElementById('status');
-
-  // ⚠️ Verifica que este databaseURL sea EXACTO al de tu consola (Realtime Database)
+  // === TU CONFIG (usa la tuya; esta es la que nos mostraste) ===
   const firebaseConfig = {
     apiKey: "AIzaSyDkzW3BnlnhDXf2naDEsjx-zouCQw1AJ9c",
     authDomain: "ordenes-b0c4c.firebaseapp.com",
-    databaseURL: "https://ordenes-b0c4c-default-rtdb.firebaseio.com",
     projectId: "ordenes-b0c4c",
     storageBucket: "ordenes-b0c4c.appspot.com",
     messagingSenderId: "168920201545",
@@ -118,106 +147,132 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  const db  = getDatabase(app);
-  statusEl.textContent = '✅ Firebase listo';
+  const db  = getFirestore(app);
 
-  // Estado local
-  let ultimaOrdenKey = sessionStorage.getItem("ultimaOrdenKey") || null;
-  let nombreUsuario  = localStorage.getItem("nombreUsuario")  || null;
+  // ======= UI refs
+  const $nombre = document.getElementById('nombre');
+  const $lockMsg = document.getElementById('lockMsg');
+  const $opciones = document.getElementById('opciones');
+  const $selStatus = document.getElementById('selStatus');
+  const $btnNueva = document.getElementById('btnNueva');
+  const $btnCancelar = document.getElementById('btnCancelar');
+  const $info = document.getElementById('info');
+  const $historial = document.getElementById('historial');
 
-  const $ = (sel)=>document.querySelector(sel);
+  const ORD_COL = collection(db, 'ordenes');
 
-  function activarOpciones(sePuedenPedir){
-    document.querySelectorAll(".card").forEach(c=>c.classList.toggle("desactivado", !sePuedenPedir));
-    $("#acciones").style.display = sePuedenPedir ? "none" : "flex";
+  // Persistir nombre en localStorage para UX
+  const storedName = localStorage.getItem('nombre');
+  if (storedName) {
+    $nombre.value = storedName;
+    lockNameIfNeeded();
+    suscribirHistorial(storedName);
   }
-  function setPedido(txt=""){ const el=$("#pedido"); if(el) el.textContent=txt; }
 
-  // Flujo de pedido
-  window.pedir = async (opcion) => {
-    const nombreInput = $("#nombre");
-    if (!nombreUsuario && (!nombreInput || !nombreInput.value.trim())){
-      alert("Por favor, ingresa tu nombre antes de hacer un pedido.");
-      return;
-    }
-    if (!nombreUsuario){
-      nombreUsuario = nombreInput.value.trim();
-      localStorage.setItem("nombreUsuario", nombreUsuario);
-      nombreInput.disabled = true; // bloquear el cambio tras la 1ª orden
-    }
+  // Bloquea nombre después de la primera orden (marcamos flag en Firestore por usuario con existencia de docs)
+  async function lockNameIfNeeded() {
+    const n = $nombre.value.trim();
+    if (!n) return;
+    const snap = await getDocs(query(ORD_COL, where('nombre','==', n), limit(1)));
+    const locked = !snap.empty;
+    toggleNameLocked(locked);
+    if (locked) suscribirHistorial(n);
+  }
 
-    const deseaPapas = confirm("¿Deseas papas con tu orden?\nPulsa Aceptar para SÍ y Cancelar para NO.");
-    const detalle    = deseaPapas ? `${opcion} con papas` : `${opcion} sin papas`;
+  function toggleNameLocked(locked){
+    $nombre.readOnly = locked;
+    $lockMsg.hidden = !locked;
+  }
 
-    try{
-      const col = ref(db, "ordenes");
-      const nuevaRef = push(col);
-      await set(nuevaRef, {
-        id: Date.now(),
-        nombre: nombreUsuario,
-        opcion, papas: deseaPapas, detalle,
-        fecha: new Date().toLocaleString(),
-        listo:false, agotado:false
+  // Al cambiar nombre manualmente
+  $nombre.addEventListener('change', () => {
+    const n = $nombre.value.trim();
+    localStorage.setItem('nombre', n);
+    suscribirHistorial(n);
+    lockNameIfNeeded();
+  });
+
+  // Suscripción al historial de este usuario
+  let unsubHist = null;
+  function suscribirHistorial(nombre){
+    if (unsubHist) { unsubHist(); unsubHist=null; }
+    if (!nombre) { $historial.innerHTML=''; return; }
+    const q = query(ORD_COL, where('nombre','==', nombre), orderBy('fecha','desc'));
+    unsubHist = onSnapshot(q, (snap)=>{
+      $historial.innerHTML = '';
+      if (snap.empty){ $historial.innerHTML = '<li class="mute">Sin órdenes</li>'; return; }
+      snap.forEach(docu=>{
+        const d = docu.data();
+        const estado = d.estado || 'pendiente';
+        const papas = d.papas ? '🍟' : '—';
+        const line = document.createElement('li');
+        line.innerHTML = `<strong>${d.opcion}</strong> ${papas} <span class="tag">${estado}</span> <span class="mute">• ${d.nombre}</span>`;
+        $historial.appendChild(line);
       });
-      ultimaOrdenKey = nuevaRef.key;
-      sessionStorage.setItem("ultimaOrdenKey", ultimaOrdenKey);
-      setPedido(`Gracias, ${nombreUsuario}. Tu pedido es: ${detalle}`);
-      activarOpciones(false);
-    }catch(e){
-      statusEl.innerHTML = '⚠️ <b>Error guardando:</b> ' + (e?.message || e);
-      statusEl.classList.add('err');
-      console.error(e);
-    }
-  };
-
-  // Nueva orden / Cancelar
-  window.nuevaOrden = () => {
-    activarOpciones(true);
-    setPedido("");
-    ultimaOrdenKey=null;
-    sessionStorage.removeItem("ultimaOrdenKey");
-  };
-
-  window.cancelar = async () => {
-    if(!ultimaOrdenKey){ setPedido("No hay una orden activa para cancelar."); return; }
-    try{
-      await remove(ref(db, "ordenes/"+ultimaOrdenKey));
-      window.nuevaOrden();
-    }catch(e){
-      alert('Error cancelando: ' + (e?.message || e));
-    }
-  };
-
-  // Historial en vivo por usuario
-  function suscribirHistorial(){
-    if(!nombreUsuario) return;
-    const q = query(ref(db,"ordenes"), orderByChild("nombre"), equalTo(nombreUsuario));
-    onValue(q, snap=>{
-      const cont = document.getElementById("historial");
-      if(!cont) return;
-      cont.innerHTML="";
-      const data = snap.val() || {};
-      const items = Object.entries(data).sort((a,b)=>a[1].id - b[1].id);
-      if(items.length===0){ cont.innerHTML="<p>No hay órdenes todavía.</p>"; return; }
-      items.forEach(([key,o],i)=>{
-        let estado = o.agotado ? " 🔴 Agotado - elige otra opción" : (o.listo ? " ✅ Listo" : "");
-        const p = document.createElement("p");
-        p.textContent = `${i+1}. ${o.opcion} (${o.papas?"🥔 Con papas":"❌ Sin papas"}) - ${o.fecha}${estado}`;
-        cont.appendChild(p);
-      });
-    }, (e)=>{
-      statusEl.innerHTML = '⚠️ <b>Error leyendo:</b> ' + (e?.message || e);
-      statusEl.classList.add('err');
     });
   }
 
-  // Inicio
-  window.addEventListener("DOMContentLoaded", ()=>{
-    const inNom = $("#nombre");
-    if(nombreUsuario && inNom){ inNom.value = nombreUsuario; inNom.disabled = true; }
-    activarOpciones(!ultimaOrdenKey);
-    suscribirHistorial();
+  // Click en opciones
+  $opciones.addEventListener('click', async (e)=>{
+    const btn = e.target.closest('button[data-opcion]');
+    if (!btn) return;
+    const nombre = $nombre.value.trim();
+    if (!nombre){
+      alert('Por favor, escribe tu nombre antes de pedir.');
+      $nombre.focus();
+      return;
+    }
+    // Confirm de papas: Aceptar = Sí, Cancelar = No
+    const conPapas = confirm('¿Quieres papas? (Aceptar = Sí, Cancelar = No)');
+    $selStatus.textContent = `Seleccionaste: ${btn.dataset.opcion}${conPapas?' + papas':''}.`;
+
+    // Guardar orden en Firestore
+    try{
+      await addDoc(ORD_COL, {
+        nombre,
+        opcion: btn.dataset.opcion,
+        papas: conPapas,
+        fecha: serverTimestamp(),
+        estado: 'pendiente'
+      });
+      localStorage.setItem('nombre', nombre);
+      $info.textContent = '✅ Orden enviada. ¡Gracias!';
+      $btnNueva.disabled = false;
+      $btnCancelar.disabled = false;
+      toggleNameLocked(true);
+      suscribirHistorial(nombre);
+    }catch(err){
+      $info.textContent = '⚠️ Error al guardar: ' + err.message;
+    }
   });
+
+  // Nueva orden: solo re-habilita selección visualmente
+  $btnNueva.addEventListener('click', ()=>{
+    $selStatus.textContent = 'Puedes elegir otra opción.';
+  });
+
+  // Cancelar: borra la última orden pendiente de este usuario
+  $btnCancelar.addEventListener('click', async ()=>{
+    const nombre = $nombre.value.trim();
+    if (!nombre) return;
+    try{
+      const snap = await getDocs(query(ORD_COL,
+        where('nombre','==', nombre),
+        where('estado','==','pendiente'),
+        orderBy('fecha','desc'),
+        limit(1)
+      ));
+      if (snap.empty){ $info.textContent='No hay orden pendiente para cancelar.'; return; }
+      const d = snap.docs[0];
+      await deleteDoc(doc(db,'ordenes', d.id));
+      $info.textContent = '🗑️ Orden cancelada.';
+    }catch(err){
+      $info.textContent = '⚠️ Error al cancelar: ' + err.message;
+    }
+  });
+
+  // Primera carga: si hay nombre, bloquea si ya tiene orden previa
+  lockNameIfNeeded();
 </script>
 </body>
 </html>
