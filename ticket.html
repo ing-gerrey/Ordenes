@@ -3,41 +3,24 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>👽 Sábado Espeluznante 32 🌭 — Ordena tu hotdog</title>
-
+<title>Tickets — Cocina</title>
 <style>
-  body { font-family: Arial, sans-serif; margin: 0; padding: 16px; color: #eaeaea;
-         background:#0e1a22; }
-  h1,h2,h3 { text-align:center; }
-  h1 { color:#5dd06e; text-shadow:0 0 8px #4bb35b; margin-bottom:6px; }
-  input[type="text"]{ width:95%; max-width:320px; margin:10px auto; display:block;
-         padding:10px; font-size:18px; border:1px solid #5dd06e; border-radius:6px;
-         background:rgba(30,46,56,.7); color:#eaeaea; text-align:center; }
-  #opciones{ display:flex; gap:14px; align-items:center; justify-content:center; flex-wrap:wrap; margin:12px 0; }
-  .card { width:120px; background:#16242c; border:1px solid rgba(93,208,110,.35);
-          border-radius:10px; padding:10px; text-align:center; box-shadow:0 0 10px rgba(93,208,110,.2); cursor:pointer; }
-  .card img{ width:100%; border-radius:8px; display:block; }
-  .card span{ display:block; margin-top:6px; font-size:14px; color:#cfead1; }
-  .desactivado{ opacity:.35; pointer-events:none; filter:grayscale(40%); }
-  #acciones{ display:none; justify-content:center; gap:12px; margin-top:10px; }
-  button{ background:#4bb35b; color:#fff; border:none; border-radius:8px; padding:10px 16px; font-size:16px; }
-  button:hover{ background:#5dd06e; }
-  #pedido{ margin:8px 0; text-align:center; color:#a9e3ad; }
-  #historial p{ background:#0f1a22; border:1px solid rgba(93,208,110,.25);
-                padding:8px; border-radius:6px; margin:6px 0; }
-  footer{ margin-top:18px; text-align:center; color:#8aa19a; font-size:13px; }
+  body { font-family: Arial, sans-serif; background:#f7f9fb; margin:0; padding:14px; }
+  h1 { text-align:center; }
+  #lista p{ background:#fff; border:1px solid #e3e6ea; padding:10px; border-radius:8px; margin:8px 0; }
+  .pedido-listo { color: #1e7e34; }
+  .pedido-agotado { text-decoration: line-through; color: #d9534f; }
+  button { margin-left:8px; padding:6px 10px; border:none; border-radius:6px; cursor:pointer; font-size:14px; }
+  .btn-listo { background:#28a745; color:#fff; }
+  .btn-agotado { background:#d9534f; color:#fff; }
 </style>
 
-<!-- Firebase SDK modular (CDN) + lógica de la página -->
+<!-- Firebase SDK + script de cocina -->
 <script type="module">
-  /* -------- Firebase (modular) -------- */
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-  import {
-    getDatabase, ref, push, set, onValue,
-    query, orderByChild, equalTo, remove
-  } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+  import { getDatabase, ref, onValue, query, orderByChild, update } 
+    from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
-  // ⚠️ Config corregida: se agrega databaseURL y storageBucket *.appspot.com
   const firebaseConfig = {
     apiKey: "AIzaSyDkzW3BnlnhDXf2naDEsjx-zouCQw1AJ9c",
     authDomain: "ordenes-b0c4c.firebaseapp.com",
@@ -52,130 +35,48 @@
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
 
-  /* -------- Estado y utilidades -------- */
-  let ultimaOrdenKey = sessionStorage.getItem("ultimaOrdenKey") || null;
-  let nombreUsuario  = localStorage.getItem("nombreUsuario")  || null;
+  const lista = document.getElementById("lista");
 
-  const $ = (sel)=>document.querySelector(sel);
+  function pintar(items){
+    lista.innerHTML="";
+    if(items.length===0){ lista.innerHTML="<p>No hay órdenes aún.</p>"; return; }
 
-  function activarOpciones(si){
-    document.querySelectorAll(".card").forEach(c=>c.classList.toggle("desactivado", !si));
-    $("#acciones").style.display = si ? "none" : "flex";
-  }
-  function setPedido(txt=""){ const el=$("#pedido"); if(el) el.textContent=txt; }
+    items.forEach(([key,o],i)=>{
+      const p = document.createElement("p");
+      let html = `${i+1}. <b>${o.nombre}</b> pidió: <b>${o.opcion}</b> ${o.papas ? "🥔 (Con papas)":"❌ (Sin papas)"} — ${o.fecha}`;
 
-  /* -------- Flujo de pedido -------- */
-  window.pedir = (opcion) => {
-    const nombreInput = $("#nombre");
-    if (!nombreUsuario && (!nombreInput || !nombreInput.value.trim())){
-      alert("Por favor, ingresa tu nombre antes de hacer un pedido.");
-      return;
-    }
-    if (!nombreUsuario){
-      nombreUsuario = nombreInput.value.trim();
-      localStorage.setItem("nombreUsuario", nombreUsuario);
-      nombreInput.disabled = true; // bloquear cambio de nombre tras 1ra orden
-    }
+      if(!o.listo && !o.agotado){
+        html += ` <button class="btn-listo"   onclick="window._ok('${key}')">Listo</button>`;
+        html += ` <button class="btn-agotado" onclick="window._out('${key}')">Agotado</button>`;
+      } else if (o.listo && !o.agotado){
+        html += ` ✅ Listo`;
+        p.classList.add("pedido-listo");
+        html += ` <button class="btn-agotado" onclick="window._out('${key}')">Agotado</button>`;
+      } else if (o.agotado){
+        html += ` 🔴 Agotado`;
+        p.classList.add("pedido-agotado");
+      }
 
-    const deseaPapas = confirm("¿Deseas papas con tu orden?\nPulsa Aceptar para Sí o Cancelar para No.");
-    const detalle    = deseaPapas ? `${opcion} con papas` : `${opcion} sin papas`;
-    guardar(opcion, deseaPapas, detalle);
-  };
-
-  async function guardar(opcion, papas, detalle){
-    const col = ref(db, "ordenes");
-    const nuevaRef = push(col);
-    await set(nuevaRef, {
-      id: Date.now(),
-      nombre: nombreUsuario,
-      opcion,
-      papas,
-      detalle,
-      fecha: new Date().toLocaleString(),
-      listo: false,
-      agotado: false
-    });
-    ultimaOrdenKey = nuevaRef.key;
-    sessionStorage.setItem("ultimaOrdenKey", ultimaOrdenKey);
-    setPedido(`Gracias, ${nombreUsuario}. Tu pedido es: ${detalle}`);
-    activarOpciones(false);
-  }
-
-  window.nuevaOrden = () => {
-    activarOpciones(true);
-    setPedido("");
-    ultimaOrdenKey=null;
-    sessionStorage.removeItem("ultimaOrdenKey");
-  };
-
-  window.cancelar = async () => {
-    if(!ultimaOrdenKey){ setPedido("No hay una orden activa para cancelar."); return; }
-    await remove(ref(db, "ordenes/"+ultimaOrdenKey));
-    window.nuevaOrden();
-  };
-
-  /* -------- Historial en vivo por usuario -------- */
-  function suscribirHistorial(){
-    if(!nombreUsuario) return;
-    const q = query(ref(db,"ordenes"), orderByChild("nombre"), equalTo(nombreUsuario));
-    onValue(q, snap=>{
-      const cont = document.getElementById("historial");
-      if(!cont) return;
-      cont.innerHTML="";
-      const data = snap.val() || {};
-      const items = Object.entries(data).sort((a,b)=>a[1].id - b[1].id);
-
-      if(items.length===0){ cont.innerHTML="<p>No hay órdenes todavía.</p>"; return; }
-
-      items.forEach(([key,o],i)=>{
-        let estado = o.agotado ? " 🔴 Agotado - elige otra opción" : (o.listo ? " ✅ Listo" : "");
-        const p = document.createElement("p");
-        p.textContent = `${i+1}. ${o.opcion} (${o.papas?"🥔 Con papas":"❌ Sin papas"}) - ${o.fecha}${estado}`;
-        cont.appendChild(p);
-      });
+      p.innerHTML = html;
+      lista.appendChild(p);
     });
   }
 
-  /* -------- Inicio -------- */
-  window.addEventListener("DOMContentLoaded", ()=>{
-    if(nombreUsuario && $("#nombre")){ $("#nombre").value = nombreUsuario; $("#nombre").disabled = true; }
-    activarOpciones(!ultimaOrdenKey);
-    suscribirHistorial();
+  // Suscripción en tiempo real a todas las órdenes (ordenadas por id asc)
+  onValue(query(ref(db,"ordenes"), orderByChild("id")), (snap)=>{
+    const data = snap.val() || {};
+    const items = Object.entries(data).sort((a,b)=>a[1].id - b[1].id);
+    pintar(items);
   });
+
+  // Acciones para los botones
+  window._ok  = (key)=> update(ref(db,"ordenes/"+key), { listo:true  });
+  window._out = (key)=> update(ref(db,"ordenes/"+key), { agotado:true });
 </script>
 </head>
 
 <body>
-  <h1>👽 Sábado Espeluznante 32 🌭</h1>
-  <input id="nombre" type="text" placeholder="Ingresa tu nombre" />
-
-  <h3>Elige tu hotdog</h3>
-  <div id="opciones">
-    <div class="card" onclick="pedir('Sencillo')">
-      <img src="opcion1.jpg" alt="Sencillo" />
-      <span>Sencillo</span>
-    </div>
-    <div class="card" onclick="pedir('Cebolla caramelizada')">
-      <img src="opcion2.jpg" alt="Cebolla caramelizada" />
-      <span>Cebolla caramelizada</span>
-    </div>
-    <div class="card" onclick="pedir('Chili')">
-      <img src="opcion3.jpg" alt="Chili" />
-      <span>Chili</span>
-    </div>
-  </div>
-
-  <h2>Tu pedido actual</h2>
-  <p id="pedido"></p>
-
-  <div id="acciones">
-    <button onclick="nuevaOrden()">Nueva orden</button>
-    <button onclick="cancelar()">Cancelar</button>
-  </div>
-
-  <h2>Historial de tus órdenes</h2>
-  <div id="historial"></div>
-
-  <footer>© Proyecto de Yuli — Inspirado en una noche pixelada 🌙</footer>
+  <h1>Órdenes registradas</h1>
+  <div id="lista"></div>
 </body>
 </html>
