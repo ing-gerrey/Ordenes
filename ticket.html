@@ -2,111 +2,105 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Tickets — Cocina</title>
 <style>
-  :root{
-    --ok:#28a745;
-    --out:#d9534f;
-  }
-  body{font-family:system-ui,Arial,sans-serif;background:#f7f9fb;margin:0;padding:16px;}
-  h1{text-align:center;margin:8px 0;}
-  #status{text-align:center;margin:8px 0;color:#667085;font-size:14px}
-  #lista p{background:#fff;border:1px solid #e3e6ea;padding:10px;border-radius:10px;margin:8px 0}
-  .pedido-listo{color:#1e7e34}
-  .pedido-agotado{color:var(--out);text-decoration:line-through}
-  button{margin-left:8px;padding:6px 10px;border:none;border-radius:8px;cursor:pointer;font-size:14px}
-  .btn-listo{background:var(--ok);color:#fff}
-  .btn-agotado{background:var(--out);color:#fff}
-  .err{color:#c0392b}
+  body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:#0a1520; color:#e7f1ff;}
+  header{padding:14px; text-align:center; background:#0c1624;}
+  h1{margin:0; font-size:1.2rem}
+  main{max-width:900px; margin:0 auto; padding:12px}
+  .card{background:#0f1b2c; border:1px solid #203146; border-radius:12px; padding:10px; margin-bottom:10px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .who{min-width:140px; font-weight:700;}
+  .opt{flex:1}
+  .tag{display:inline-block; padding:2px 8px; border-radius:999px; font-size:.78rem; border:1px solid #2a3b53; background:#0c1a29}
+  .papas{opacity:.9}
+  .btn{border:0; padding:8px 10px; border-radius:10px; cursor:pointer; color:#fff; font-weight:700}
+  .ok{background:#1e7b4f; border:1px solid #2ea46c}
+  .warn{background:#8c1d25; border:1px solid #c53a44}
+  .muted{opacity:.7}
 </style>
 </head>
 <body>
-  <h1>Órdenes registradas</h1>
-  <div id="status">Cargando…</div>
+<header>
+  <h1>Órdenes registradas — Cocina</h1>
+  <div id="status" class="muted" style="margin-top:6px"></div>
+</header>
+<main>
   <div id="lista"></div>
+</main>
 
-  <script>
-    // Muestra errores JS en pantalla (útil en móvil)
-    window.onerror = (msg)=>{ const s=document.getElementById('status'); s.innerHTML='⚠️ <b>Error:</b> '+msg; s.classList.add('err'); };
-  </script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+  import {
+    getFirestore, collection, onSnapshot, query, orderBy, updateDoc, doc
+  } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-    import { getDatabase, ref, onValue, query, orderByChild, update }
-      from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyDkzW3BnlnhDXf2naDEsjx-zouCQw1AJ9c",
+    authDomain: "ordenes-b0c4c.firebaseapp.com",
+    projectId: "ordenes-b0c4c",
+    storageBucket: "ordenes-b0c4c.appspot.com",
+    messagingSenderId: "168920201545",
+    appId: "1:168920201545:web:7a8e53c3e34e28e7508298",
+    measurementId: "G-RSG46R8W8C"
+  };
 
-    const statusEl = document.getElementById('status');
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
 
-    // ⚠️ Verifica que este databaseURL sea EXACTO al de tu consola
-    const firebaseConfig = {
-      apiKey: "AIzaSyDkzW3BnlnhDXf2naDEsjx-zouCQw1AJ9c",
-      authDomain: "ordenes-b0c4c.firebaseapp.com",
-      databaseURL: "https://ordenes-b0c4c-default-rtdb.firebaseio.com",
-      projectId: "ordenes-b0c4c",
-      storageBucket: "ordenes-b0c4c.appspot.com",
-      messagingSenderId: "168920201545",
-      appId: "1:168920201545:web:7a8e53c3e34e28e7508298",
-      measurementId: "G-RSG46R8W8C"
+  const $lista = document.getElementById('lista');
+  const $status = document.getElementById('status');
+
+  function render(docId, data){
+    const estado = data.estado || 'pendiente';
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.id = 'o_'+docId;
+
+    const who = document.createElement('div');
+    who.className = 'who';
+    who.textContent = data.nombre;
+
+    const opt = document.createElement('div');
+    opt.className = 'opt';
+    const papas = data.papas ? '🍟' : '—';
+    opt.innerHTML = `<strong>${data.opcion}</strong> <span class="papas">${papas}</span> • <span class="tag">${estado}</span>`;
+
+    const bListo = document.createElement('button');
+    bListo.className='btn ok';
+    bListo.textContent='Listo';
+    bListo.onclick = async ()=> {
+      await updateDoc(doc(db,'ordenes',docId), { estado:'listo' });
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db  = getDatabase(app);
-    statusEl.textContent = '✅ Firebase listo';
+    const bAgotado = document.createElement('button');
+    bAgotado.className='btn warn';
+    bAgotado.textContent='Opción agotada (pida otra) 🔴';
+    bAgotado.title='Marca que esta opción ya no está disponible';
+    bAgotado.onclick = async ()=> {
+      await updateDoc(doc(db,'ordenes',docId), { estado:'agotado' });
+    };
 
-    const lista = document.getElementById("lista");
-
-    function pintar(items){
-      lista.innerHTML = "";
-      if(items.length === 0){
-        lista.innerHTML = "<p>No hay órdenes aún.</p>";
-        return;
-      }
-      items.forEach(([key,o],i)=>{
-        const p = document.createElement("p");
-        let html = `${i+1}. <b>${o.nombre}</b> pidió: <b>${o.opcion}</b> ${o.papas ? "🥔 (Con papas)":"❌ (Sin papas)"} — ${o.fecha}`;
-
-        if(!o.listo && !o.agotado){
-          html += ` <button class="btn-listo" onclick="window._ok('${key}')">Listo</button>`;
-          html += ` <button class="btn-agotado" onclick="window._out('${key}')">Agotado</button>`;
-        }else if(o.listo && !o.agotado){
-          html += " ✅ Listo";
-          p.classList.add("pedido-listo");
-          html += ` <button class="btn-agotado" onclick="window._out('${key}')">Agotado</button>`;
-        }else if(o.agotado){
-          html += " 🔴 Agotado";
-          p.classList.add("pedido-agotado");
-        }
-
-        p.innerHTML = html;
-        lista.appendChild(p);
-      });
+    div.appendChild(who);
+    div.appendChild(opt);
+    if (estado === 'pendiente'){
+      div.appendChild(bListo);
+      div.appendChild(bAgotado);
     }
+    return div;
+  }
 
-    // Suscripción en tiempo real a todas las órdenes (orden por id ascendente)
-    onValue(
-      query(ref(db,"ordenes"), orderByChild("id")),
-      (snap)=>{
-        const data = snap.val() || {};
-        const items = Object.entries(data).sort((a,b)=>a[1].id - b[1].id);
-        pintar(items);
-      },
-      (e)=>{
-        statusEl.innerHTML = '⚠️ <b>Error leyendo:</b> ' + (e?.message || e);
-        statusEl.classList.add('err');
-        console.error(e);
-      }
-    );
-
-    // Acciones de los botones
-    window._ok  = async (key)=>{
-      try{ await update(ref(db,"ordenes/"+key), { listo:true  }); }
-      catch(e){ alert('Error marcando listo: '+(e?.message||e)); }
-    };
-    window._out = async (key)=>{
-      try{ await update(ref(db,"ordenes/"+key), { agotado:true }); }
-      catch(e){ alert('Error marcando agotado: '+(e?.message||e)); }
-    };
-  </script>
+  // Suscripción en tiempo real
+  onSnapshot(query(collection(db,'ordenes'), orderBy('fecha','asc')), (snap)=>{
+    $lista.innerHTML = '';
+    if (snap.empty){ $lista.innerHTML = '<div class="muted">No hay órdenes aún.</div>'; return; }
+    snap.forEach(d=>{
+      $lista.appendChild( render(d.id, d.data()) );
+    });
+    $status.textContent = `Total: ${snap.size}`;
+  }, (err)=>{
+    $status.textContent = 'Error: ' + err.message;
+  });
+</script>
 </body>
 </html>
