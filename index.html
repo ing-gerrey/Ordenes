@@ -1,175 +1,181 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>👽 Sábado Espeluznante 🌭 — Yuli</title>
-<script src="script.js" defer></script>
-
-<!-- Fuente pixelada -->
-<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>👽 Sábado Espeluznante 32 🌭 — Ordena tu hotdog</title>
 
 <style>
-  /* --- Fondo base (pantallas grandes) --- */
-  body {
-    font-family: 'VT323', monospace;
-    color: #e0e0e0;
-    margin: 0;
-    padding: 10px;
-    min-height: 100vh;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.9)),
-                url('Fondo2.jpg') center bottom no-repeat;
-    background-size: cover;
-    background-attachment: fixed;
-  }
-
-  /* --- Fondo para móviles --- */
-  @media (max-width: 768px) {
-    body {
-      background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.9)),
-                  url('Fondo1.jpg') center bottom no-repeat;
-      background-size: cover;
-      background-attachment: fixed;
-    }
-  }
-
-  h1, h2, h3 {
-    text-align: center;
-    text-shadow: 0 0 10px #5dd06e, 0 0 20px #4bb35b;
-  }
-
-  h1 {
-    color: #5dd06e;
-    font-size: 40px;
-    margin-top: 15px;
-    animation: parpadeo 1.5s infinite alternate;
-  }
-
-  @keyframes parpadeo {
-    from { opacity: 1; }
-    to { opacity: 0.7; }
-  }
-
-  input[type="text"] {
-    width: 85%;
-    max-width: 300px;
-    margin: 10px auto;
-    display: block;
-    padding: 10px;
-    font-size: 18px;
-    border: 1px solid #5dd06e;
-    border-radius: 4px;
-    background-color: rgba(30,46,56,0.7);
-    color: #e0e0e0;
-    text-align: center;
-  }
-
-  #opciones {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    margin: 20px 0;
-  }
-
-  #opciones img {
-    width: 60%;
-    max-width: 240px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(91,219,102,0.3);
-    cursor: pointer;
-    transition: transform .2s, box-shadow .3s;
-  }
-
-  #opciones img:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 25px rgba(91,219,102,0.6);
-  }
-
-  img.desactivado {
-    opacity: 0.4;
-    pointer-events: none;
-    box-shadow: none;
-  }
-
-  #acciones {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
-  }
-
-  button {
-    background: #4bb35b;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 20px;
-    font-size: 18px;
-    box-shadow: 0 0 10px #4bb35b;
-    transition: all .3s;
-  }
-
-  button:hover {
-    background: #5dd06e;
-    box-shadow: 0 0 20px #5dd06e;
-  }
-
-  #pedido {
-    text-align: center;
-    margin-top: 10px;
-    font-size: 20px;
-    color: #91c98d;
-  }
-
-  #historial {
-    margin-top: 25px;
-  }
-
-  #historial p {
-    background: rgba(15,26,34,0.7);
-    border: 1px solid rgba(91,219,102,0.3);
-    margin: 6px auto;
-    padding: 8px;
-    border-radius: 6px;
-    width: 90%;
-    max-width: 340px;
-    color: #e0e0e0;
-    box-shadow: 0 0 6px rgba(91,219,102,0.2);
-  }
-
-  footer {
-    text-align: center;
-    margin-top: 25px;
-    font-size: 14px;
-    color: #8ba599;
-  }
+  body { font-family: Arial, sans-serif; margin: 0; padding: 16px; color: #eaeaea;
+         background:#0e1a22; }
+  h1,h2,h3 { text-align:center; }
+  h1 { color:#5dd06e; text-shadow:0 0 8px #4bb35b; margin-bottom:6px; }
+  input[type="text"]{ width:95%; max-width:320px; margin:10px auto; display:block;
+         padding:10px; font-size:18px; border:1px solid #5dd06e; border-radius:6px;
+         background:rgba(30,46,56,.7); color:#eaeaea; text-align:center; }
+  #opciones{ display:flex; gap:14px; align-items:center; justify-content:center; flex-wrap:wrap; margin:12px 0; }
+  .card { width:120px; background:#16242c; border:1px solid rgba(93,208,110,.35);
+          border-radius:10px; padding:10px; text-align:center; box-shadow:0 0 10px rgba(93,208,110,.2); cursor:pointer; }
+  .card img{ width:100%; border-radius:8px; display:block; }
+  .card span{ display:block; margin-top:6px; font-size:14px; color:#cfead1; }
+  .desactivado{ opacity:.35; pointer-events:none; filter:grayscale(40%); }
+  #acciones{ display:none; justify-content:center; gap:12px; margin-top:10px; }
+  button{ background:#4bb35b; color:#fff; border:none; border-radius:8px; padding:10px 16px; font-size:16px; }
+  button:hover{ background:#5dd06e; }
+  #pedido{ margin:8px 0; text-align:center; color:#a9e3ad; }
+  #historial p{ background:#0f1a22; border:1px solid rgba(93,208,110,.25);
+                padding:8px; border-radius:6px; margin:6px 0; }
+  footer{ margin-top:18px; text-align:center; color:#8aa19a; font-size:13px; }
 </style>
+
+<!-- Firebase SDK modular (CDN) + lógica de la página -->
+<script type="module">
+  /* -------- Firebase (modular) -------- */
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+  import {
+    getDatabase, ref, push, set, onValue,
+    query, orderByChild, equalTo, remove
+  } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+
+  // ⚠️ Config corregida: se agrega databaseURL y storageBucket *.appspot.com
+  const firebaseConfig = {
+    apiKey: "AIzaSyDkzW3BnlnhDXf2naDEsjx-zouCQw1AJ9c",
+    authDomain: "ordenes-b0c4c.firebaseapp.com",
+    databaseURL: "https://ordenes-b0c4c-default-rtdb.firebaseio.com",
+    projectId: "ordenes-b0c4c",
+    storageBucket: "ordenes-b0c4c.appspot.com",
+    messagingSenderId: "168920201545",
+    appId: "1:168920201545:web:7a8e53c3e34e28e7508298",
+    measurementId: "G-RSG46R8W8C"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  /* -------- Estado y utilidades -------- */
+  let ultimaOrdenKey = sessionStorage.getItem("ultimaOrdenKey") || null;
+  let nombreUsuario  = localStorage.getItem("nombreUsuario")  || null;
+
+  const $ = (sel)=>document.querySelector(sel);
+
+  function activarOpciones(si){
+    document.querySelectorAll(".card").forEach(c=>c.classList.toggle("desactivado", !si));
+    $("#acciones").style.display = si ? "none" : "flex";
+  }
+  function setPedido(txt=""){ const el=$("#pedido"); if(el) el.textContent=txt; }
+
+  /* -------- Flujo de pedido -------- */
+  window.pedir = (opcion) => {
+    const nombreInput = $("#nombre");
+    if (!nombreUsuario && (!nombreInput || !nombreInput.value.trim())){
+      alert("Por favor, ingresa tu nombre antes de hacer un pedido.");
+      return;
+    }
+    if (!nombreUsuario){
+      nombreUsuario = nombreInput.value.trim();
+      localStorage.setItem("nombreUsuario", nombreUsuario);
+      nombreInput.disabled = true; // bloquear cambio de nombre tras 1ra orden
+    }
+
+    const deseaPapas = confirm("¿Deseas papas con tu orden?\nPulsa Aceptar para Sí o Cancelar para No.");
+    const detalle    = deseaPapas ? `${opcion} con papas` : `${opcion} sin papas`;
+    guardar(opcion, deseaPapas, detalle);
+  };
+
+  async function guardar(opcion, papas, detalle){
+    const col = ref(db, "ordenes");
+    const nuevaRef = push(col);
+    await set(nuevaRef, {
+      id: Date.now(),
+      nombre: nombreUsuario,
+      opcion,
+      papas,
+      detalle,
+      fecha: new Date().toLocaleString(),
+      listo: false,
+      agotado: false
+    });
+    ultimaOrdenKey = nuevaRef.key;
+    sessionStorage.setItem("ultimaOrdenKey", ultimaOrdenKey);
+    setPedido(`Gracias, ${nombreUsuario}. Tu pedido es: ${detalle}`);
+    activarOpciones(false);
+  }
+
+  window.nuevaOrden = () => {
+    activarOpciones(true);
+    setPedido("");
+    ultimaOrdenKey=null;
+    sessionStorage.removeItem("ultimaOrdenKey");
+  };
+
+  window.cancelar = async () => {
+    if(!ultimaOrdenKey){ setPedido("No hay una orden activa para cancelar."); return; }
+    await remove(ref(db, "ordenes/"+ultimaOrdenKey));
+    window.nuevaOrden();
+  };
+
+  /* -------- Historial en vivo por usuario -------- */
+  function suscribirHistorial(){
+    if(!nombreUsuario) return;
+    const q = query(ref(db,"ordenes"), orderByChild("nombre"), equalTo(nombreUsuario));
+    onValue(q, snap=>{
+      const cont = document.getElementById("historial");
+      if(!cont) return;
+      cont.innerHTML="";
+      const data = snap.val() || {};
+      const items = Object.entries(data).sort((a,b)=>a[1].id - b[1].id);
+
+      if(items.length===0){ cont.innerHTML="<p>No hay órdenes todavía.</p>"; return; }
+
+      items.forEach(([key,o],i)=>{
+        let estado = o.agotado ? " 🔴 Agotado - elige otra opción" : (o.listo ? " ✅ Listo" : "");
+        const p = document.createElement("p");
+        p.textContent = `${i+1}. ${o.opcion} (${o.papas?"🥔 Con papas":"❌ Sin papas"}) - ${o.fecha}${estado}`;
+        cont.appendChild(p);
+      });
+    });
+  }
+
+  /* -------- Inicio -------- */
+  window.addEventListener("DOMContentLoaded", ()=>{
+    if(nombreUsuario && $("#nombre")){ $("#nombre").value = nombreUsuario; $("#nombre").disabled = true; }
+    activarOpciones(!ultimaOrdenKey);
+    suscribirHistorial();
+  });
+</script>
 </head>
 
 <body>
-  <h1>👽 Sábado Espeluznante 🌭</h1>
-  <input id="nombre" type="text" placeholder="Ingresa tu nombre">
+  <h1>👽 Sábado Espeluznante 32 🌭</h1>
+  <input id="nombre" type="text" placeholder="Ingresa tu nombre" />
 
-  <h3>Elige tu hotdog:</h3>
+  <h3>Elige tu hotdog</h3>
   <div id="opciones">
-    <img src="opcion1.jpg" alt="Clásico" onclick="preguntarPapas('Clásico')">
-    <img src="opcion2.jpg" alt="Cebolla caramelizada" onclick="preguntarPapas('Cebolla caramelizada')">
-    <img src="opcion3.jpg" alt="Chili" onclick="preguntarPapas('Chili')">
+    <div class="card" onclick="pedir('Sencillo')">
+      <img src="opcion1.jpg" alt="Sencillo" />
+      <span>Sencillo</span>
+    </div>
+    <div class="card" onclick="pedir('Cebolla caramelizada')">
+      <img src="opcion2.jpg" alt="Cebolla caramelizada" />
+      <span>Cebolla caramelizada</span>
+    </div>
+    <div class="card" onclick="pedir('Chili')">
+      <img src="opcion3.jpg" alt="Chili" />
+      <span>Chili</span>
+    </div>
   </div>
 
-  <h2>Tu pedido actual:</h2>
+  <h2>Tu pedido actual</h2>
   <p id="pedido"></p>
 
-  <div id="acciones" style="display:none;">
+  <div id="acciones">
     <button onclick="nuevaOrden()">Nueva orden</button>
     <button onclick="cancelar()">Cancelar</button>
   </div>
 
-  <h2>Historial de tus órdenes:</h2>
+  <h2>Historial de tus órdenes</h2>
   <div id="historial"></div>
 
-  <footer>©Yuli 🌙</footer>
+  <footer>© Proyecto de Yuli — Inspirado en una noche pixelada 🌙</footer>
 </body>
 </html>
-
