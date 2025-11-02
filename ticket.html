@@ -7,76 +7,79 @@
 <style>
   body { font-family: Arial, sans-serif; background:#f7f9fb; margin:0; padding:14px; }
   h1 { text-align:center; }
+  #status { text-align:center; color:#666; margin:8px 0; }
   #lista p{ background:#fff; border:1px solid #e3e6ea; padding:10px; border-radius:8px; margin:8px 0; }
   .pedido-listo { color: #1e7e34; }
   .pedido-agotado { text-decoration: line-through; color: #d9534f; }
   button { margin-left:8px; padding:6px 10px; border:none; border-radius:6px; cursor:pointer; font-size:14px; }
   .btn-listo { background:#28a745; color:#fff; }
   .btn-agotado { background:#d9534f; color:#fff; }
+  .err { color:#c0392b; }
 </style>
-
-<!-- Firebase SDK + script de cocina -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-  import { getDatabase, ref, onValue, query, orderByChild, update } 
-    from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDkzW3BnlnhDXf2naDEsjx-zouCQw1AJ9c",
-    authDomain: "ordenes-b0c4c.firebaseapp.com",
-    databaseURL: "https://ordenes-b0c4c-default-rtdb.firebaseio.com",
-    projectId: "ordenes-b0c4c",
-    storageBucket: "ordenes-b0c4c.appspot.com",
-    messagingSenderId: "168920201545",
-    appId: "1:168920201545:web:7a8e53c3e34e28e7508298",
-    measurementId: "G-RSG46R8W8C"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db  = getDatabase(app);
-
-  const lista = document.getElementById("lista");
-
-  function pintar(items){
-    lista.innerHTML="";
-    if(items.length===0){ lista.innerHTML="<p>No hay órdenes aún.</p>"; return; }
-
-    items.forEach(([key,o],i)=>{
-      const p = document.createElement("p");
-      let html = `${i+1}. <b>${o.nombre}</b> pidió: <b>${o.opcion}</b> ${o.papas ? "🥔 (Con papas)":"❌ (Sin papas)"} — ${o.fecha}`;
-
-      if(!o.listo && !o.agotado){
-        html += ` <button class="btn-listo"   onclick="window._ok('${key}')">Listo</button>`;
-        html += ` <button class="btn-agotado" onclick="window._out('${key}')">Agotado</button>`;
-      } else if (o.listo && !o.agotado){
-        html += ` ✅ Listo`;
-        p.classList.add("pedido-listo");
-        html += ` <button class="btn-agotado" onclick="window._out('${key}')">Agotado</button>`;
-      } else if (o.agotado){
-        html += ` 🔴 Agotado`;
-        p.classList.add("pedido-agotado");
-      }
-
-      p.innerHTML = html;
-      lista.appendChild(p);
-    });
-  }
-
-  // Suscripción en tiempo real a todas las órdenes (ordenadas por id asc)
-  onValue(query(ref(db,"ordenes"), orderByChild("id")), (snap)=>{
-    const data = snap.val() || {};
-    const items = Object.entries(data).sort((a,b)=>a[1].id - b[1].id);
-    pintar(items);
-  });
-
-  // Acciones para los botones
-  window._ok  = (key)=> update(ref(db,"ordenes/"+key), { listo:true  });
-  window._out = (key)=> update(ref(db,"ordenes/"+key), { agotado:true });
-</script>
 </head>
-
 <body>
   <h1>Órdenes registradas</h1>
+  <div id="status">Cargando…</div>
   <div id="lista"></div>
+
+  <script>
+    window.onerror = (m)=>{ const s=document.getElementById('status'); s.innerHTML='⚠️ <b>Error:</b> '+m; s.classList.add('err'); };
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+    import { getDatabase, ref, onValue, query, orderByChild, update }
+      from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+
+    const statusEl = document.getElementById('status');
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDkzW3BnlnhDXf2naDEsjx-zouCQw1AJ9c",
+      authDomain: "ordenes-b0c4c.firebaseapp.com",
+      databaseURL: "https://ordenes-b0c4c-default-rtdb.firebaseio.com",
+      projectId: "ordenes-b0c4c",
+      storageBucket: "ordenes-b0c4c.appspot.com",
+      messagingSenderId: "168920201545",
+      appId: "1:168920201545:web:7a8e53c3e34e28e7508298",
+      measurementId: "G-RSG46R8W8C"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getDatabase(app);
+    statusEl.textContent = '✅ Firebase listo';
+
+    const lista = document.getElementById("lista");
+
+    function pintar(items){
+      lista.innerHTML="";
+      if(items.length===0){ lista.innerHTML="<p>No hay órdenes aún.</p>"; return; }
+      items.forEach(([key,o],i)=>{
+        const p = document.createElement("p");
+        let html = `${i+1}. <b>${o.nombre}</b> pidió: <b>${o.opcion}</b> ${o.papas ? "🥔 (Con papas)":"❌ (Sin papas)"} — ${o.fecha}`;
+        if(!o.listo && !o.agotado){
+          html += ` <button class="btn-listo"   onclick="window._ok('${key}')">Listo</button>`;
+          html += ` <button class="btn-agotado" onclick="window._out('${key}')">Agotado</button>`;
+        } else if (o.listo && !o.agotado){
+          html += ` ✅ Listo`;
+          p.classList.add("pedido-listo");
+          html += ` <button class="btn-agotado" onclick="window._out('${key}')">Agotado</button>`;
+        } else if (o.agotado){
+          html += ` 🔴 Agotado`;
+          p.classList.add("pedido-agotado");
+        }
+        p.innerHTML = html;
+        lista.appendChild(p);
+      });
+    }
+
+    onValue(query(ref(db,"ordenes"), orderByChild("id")), (snap)=>{
+      const data = snap.val() || {};
+      const items = Object.entries(data).sort((a,b)=>a[1].id - b[1].id);
+      pintar(items);
+    });
+
+    window._ok  = (key)=> update(ref(db,"ordenes/"+key), { listo:true  });
+    window._out = (key)=> update(ref(db,"ordenes/"+key), { agotado:true });
+  </script>
 </body>
 </html>
